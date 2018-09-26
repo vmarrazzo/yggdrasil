@@ -1,0 +1,27 @@
+<configuration>
+
+	<property scope="context" name="logFolderPath" value="${location.of.the.log.folder}" />
+
+	<property name="pattern" value="%d{HH:mm:ss.SSS} [%thread] %-5level %logger{0} - [%F:%L] - %msg%n" />
+
+	<timestamp key="byMinute" datePattern="yyyy_MM_dd_HH_mm" />
+
+	<!--appender class="ch.qos.logback.core.FileAppender" name="FILE">
+		<file>${logFolderPath}/executionLog_at_${byMinute}.log</file>
+		<encoder>
+			<pattern>${pattern}</pattern>
+		</encoder>
+	</appender-->
+
+	<appender class="ch.qos.logback.core.ConsoleAppender" name="STDOUT">
+		<encoder>
+			<pattern>${pattern}</pattern>
+		</encoder>
+	</appender>
+
+	<root level="DEBUG">
+		<!--appender-ref ref="FILE"/-->
+		<appender-ref ref="STDOUT" />
+	</root>
+
+</configuration>
