@@ -13,38 +13,38 @@ import org.slf4j.LoggerFactory;
 
 /**
  * This class handles a pool of resource object that can be booked by multiple thread.
- * 
+ *
  * @param <T> the type of handled resource
  */
-public class ResourceArbiter<T> {
+public final class ResourceArbiter<T> {
 
 	/**
 	 * Factory interface is used to formalize object designed to create/destroy handled resources.
-	 * 
+	 *
 	 * @param <T> the type of handled resource
 	 */
 	public interface Factory<T> {
-		
+
 		/**
 		 * It creates a new driver according setup
-		 * 
+		 *
 		 * @return new instance of handled resource
 		 */
 		T newResource();
-		
+
 		/**
 		 * Close and deallocate handled driver
-		 * 
-		 * @param resource is resource object to be destroyed 
+		 *
+		 * @param resource is resource object to be destroyed
 		 */
 		void closeResource(T resource);
 	}
-	
+
 	/**
-	 * 
+	 * Logger
 	 */
-	private final static Logger logger__ = LoggerFactory.getLogger("root");
-	
+	private final Logger logger = LoggerFactory.getLogger("root");
+
 	/**
 	 * It resolve concurrent resource requests
 	 */
@@ -62,28 +62,28 @@ public class ResourceArbiter<T> {
 
 	/**
 	 * Simple constructor, it takes as input list of handled resources.
-	 * 
+	 *
 	 * @param items is a list of handled resources generated externally
 	 */
-	public ResourceArbiter(List<T> items) {
-		
+	public ResourceArbiter(final List<T> items) {
+
 		resources = items
 						.stream()
 						.collect(
-								Collectors.<T,T,Boolean,HashMap<T,Boolean>>toMap(
-										t -> t, 
-										t -> Boolean.TRUE,  
-										(a, b) -> Boolean.TRUE, 
+								Collectors.<T, T, Boolean, HashMap<T, Boolean>>toMap(
+										t -> t,
+										t -> Boolean.TRUE,
+										(a, b) -> Boolean.TRUE,
 										() -> new HashMap<>(items.size()))
 								);
 		factory = null; // null will disable re-new feature
 	}
 
 	/**
-	 * It's instance {@code Factory} object used to create/destroy handled resources 
+	 * It's instance {@code Factory} object used to create/destroy handled resources
 	 */
 	private final Factory<T> factory;
-	
+
 	/**
 	 * It's instance max number of iterations for each resource
 	 */
@@ -92,20 +92,20 @@ public class ResourceArbiter<T> {
 	/**
 	 * Advanced constructor. It takes as input {@code Factory} object that will be used to create/destroy handled resources.
 	 * Moreover as input there is number of element to placed into pool and how many iteration each instance must serve before proceed to substitution.
-	 * 
+	 *
 	 * @param inFactory is the {@code Factory} object
 	 * @param nrElement is number of element to placed into pool
 	 * @param inMaxIteration is number of iteration each resource must serve before proceed with substitution
 	 */
-	public ResourceArbiter(Factory<T> inFactory, Integer nrElement, Integer inMaxIteration) {
+	public ResourceArbiter(final Factory<T> inFactory, final Integer nrElement, final Integer inMaxIteration) {
 		factory = inFactory;
 		maxIterations = inMaxIteration;
-		
+
 		resources = new HashMap<>(nrElement);
 		usageCounter = new HashMap<>(nrElement);
 
 		IntStream.rangeClosed(1, nrElement).forEach(in -> {
-			T item = factory.newResource();
+			final T item = factory.newResource();
 			resources.put(item, Boolean.TRUE);
 			usageCounter.put(item, maxIterations);
 		});
@@ -113,7 +113,7 @@ public class ResourceArbiter<T> {
 
 	/**
 	 * This method returns {@code Optional} with eventually booked resource
-	 * 
+	 *
      * @return an empty {@code Optional}
 	 */
 	public Optional<T> get() {
@@ -136,10 +136,10 @@ public class ResourceArbiter<T> {
 
 	/**
 	 * This method frees booked resource
-	 * 
+	 *
 	 * @param item is booked object to be free
 	 */
-	public void free(T item) {
+	public void free(final T item) {
 
 		// only if false
 		if (!resources.get(item)) {
@@ -149,26 +149,27 @@ public class ResourceArbiter<T> {
 			lock.lock();
 			try {
 				if (usageCounter != null) { // extended
-					Integer currCounter = usageCounter.get(item) - 1;
+					final Integer currCounter = usageCounter.get(item) - 1;
 
-					if (currCounter == 0) // invoke dispose and renew procedure
+					if (currCounter == 0) {
 						disposeItem = Optional.of(item); // leave item in FALSE state
-					else { // make item available
+					} else { // make item available
 						resources.put(item, Boolean.TRUE);
 						usageCounter.put(item, currCounter);
 					}
-				} else // normal
+				} else {
 					resources.put(item, Boolean.TRUE);
+				}
 
 			} finally {
 				lock.unlock();
 			}
 
 			disposeItem.ifPresent(item2DisposeRenew -> {
-				
-				logger__.info("#### Re-new of shareable item.");
-				
-				T renewItem = factory.newResource();
+
+				logger.info("#### Re-new of shareable item.");
+
+				final T renewItem = factory.newResource();
 
 				lock.lock();
 				try {
