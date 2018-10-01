@@ -112,11 +112,11 @@ public final class ResourceArbiter<T> {
 	}
 
 	/**
-	 * This method returns {@code Optional} with eventually booked resource
+	 * This method reserves an instance from handled pool of &lt;T&gt; resources
 	 *
-     * @return an empty {@code Optional}
+     * @return an {@code Optional} of &lt;T&gt;
 	 */
-	public Optional<T> get() {
+	public Optional<T> reserve() {
 
 		Optional<T> resp = Optional.empty();
 

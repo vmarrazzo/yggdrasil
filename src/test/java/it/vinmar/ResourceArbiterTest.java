@@ -45,7 +45,7 @@ public class ResourceArbiterTest {
 				step -> {
 					switch (step.getKey()) {
 					case TAKE:
-						Optional<Integer> ii = underTest.get();
+						Optional<Integer> ii = underTest.reserve();
 						ii.ifPresent(item -> Assert.assertEquals(step.getValue(), item));
 						break;
 
@@ -55,9 +55,9 @@ public class ResourceArbiterTest {
 					}
 				});
 		
-		args.forEach(index -> underTest.get());
+		args.forEach(index -> underTest.reserve());
 		
-		Assert.assertEquals(Optional.empty(), underTest.get());
+		Assert.assertEquals(Optional.empty(), underTest.reserve());
 	}
 	
 	@Test
@@ -104,7 +104,7 @@ public class ResourceArbiterTest {
 				step -> {
 					switch (step.getKey()) {
 					case TAKE:
-						Optional<Integer> ii = underTest.get();
+						Optional<Integer> ii = underTest.reserve();
 						ii.ifPresent(item -> Assert.assertEquals(step.getValue(), item));
 						break;
 
@@ -114,9 +114,9 @@ public class ResourceArbiterTest {
 					}
 				});
 		
-		IntStream.rangeClosed(1, nrElement).forEach(index -> underTest.get());
+		IntStream.rangeClosed(1, nrElement).forEach(index -> underTest.reserve());
 		
-		Assert.assertEquals(Optional.empty(), underTest.get());
+		Assert.assertEquals(Optional.empty(), underTest.reserve());
 	}
 	
 	@Test
@@ -165,7 +165,7 @@ public class ResourceArbiterTest {
 				step -> {
 					switch (step.getKey()) {
 					case TAKE:
-						Optional<Integer> ii = underTest.get();
+						Optional<Integer> ii = underTest.reserve();
 						ii.ifPresent(item -> Assert.assertEquals(step.getValue(), item));
 						break;
 

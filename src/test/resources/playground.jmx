@@ -146,7 +146,7 @@ int count = 0
 
 (1..nrThreads).each{
 	log.info(&quot;#### TearDown instance nr. &quot; + it)
-	def d = wdPool.get()
+	def d = wdPool.reserve()
 
 	if (d.isPresent()) {
 		def driver = d.get()
@@ -203,7 +203,7 @@ def path = vars.get(&quot;path2&quot;)
 def xpath = vars.get(&quot;xpath2&quot;)
 
 // take an available WebDriver
-def extDriver = wdPool.get()
+def extDriver = wdPool.reserve()
 
 // if an instance is returned
 if (extDriver.isPresent()) {
