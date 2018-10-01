@@ -135,10 +135,12 @@ public final class WebDriverFactory implements it.vinmar.ResourceArbiter.Factory
 			final Optional<String> inNoProxy) {
 
 		logger.info(String.format("#### Creation of WebDriverFactory for %s", inBrowserType));
-		inProxy.ifPresent(urlproxy -> logger.info(String.format("#### Using proxy -> %s", urlproxy.toString())));
+		inProxy.ifPresent(urlproxy -> logger
+				.info(String.format("#### Using proxy -> %s", urlproxy.toString())));
 		inNoProxy.ifPresent(listNoProxy -> logger
 				.info(String.format("#### Using proxy -> %s", listNoProxy.split(",").toString())));
-		inGrid.ifPresent(urlgrid -> logger.info(String.format("#### Using Selenium Grid -> %s", urlgrid.toString())));
+		inGrid.ifPresent(urlgrid -> logger
+				.info(String.format("#### Using Selenium Grid -> %s", urlgrid.toString())));
 
 		browserType = WebBrowsers.valueOf(inBrowserType);
 		this.proxy = inProxy;
@@ -183,10 +185,11 @@ public final class WebDriverFactory implements it.vinmar.ResourceArbiter.Factory
 	}
 
 	/**
-	 * Private method to generate FirefoxDriverOptions file.
+	 * Private method to generate FirefoxOptions object.
 	 *
 	 * @param headless
-	 * @return
+	 *
+	 * @return {@code FirefoxOptions} according current configuration
 	 */
 	private FirefoxOptions createFirefoxOptions(final Boolean headless) {
 
@@ -195,14 +198,14 @@ public final class WebDriverFactory implements it.vinmar.ResourceArbiter.Factory
 
 		proxy.ifPresent(ok -> fops.setCapability(CapabilityType.PROXY, proxyObject));
 
-		System.setProperty(FirefoxDriver.SystemProperty.DRIVER_USE_MARIONETTE,"true");
-		System.setProperty(FirefoxDriver.SystemProperty.BROWSER_LOGFILE,"/dev/null");
+		System.setProperty(FirefoxDriver.SystemProperty.DRIVER_USE_MARIONETTE, "true");
+		System.setProperty(FirefoxDriver.SystemProperty.BROWSER_LOGFILE, "/dev/null");
 
 		final FirefoxProfile fp = new FirefoxProfile();
 		fp.setPreference("geo.prompt.testing", Boolean.TRUE);
 		fp.setPreference("geo.prompt.testing.allow", Boolean.TRUE);
 		fp.setPreference("geo.wifi.uri",
-				"data:application/json,{\"status\":\"OK\",\"accuracy\":10.0,\"location\":{\"lat\":45.465454,\"lng\":9.1865159}}");
+				"data:application/json,{\"status\":\"OK\",\"accuracy\":10.0,\"location\":{\"lat\":37.619431,\"lng\":-112.166504}}");
 
 		if (!headless && Boolean.parseBoolean(System.getProperty("factory.debug", "false"))) {
 
@@ -216,8 +219,9 @@ public final class WebDriverFactory implements it.vinmar.ResourceArbiter.Factory
 				fp.addExtension(tempChroPath.toFile());
 
 			} catch (final IOException e) {
-				logger.error("XXXX Error during debug procedure -> no ChroPath available.");
-				throw new IllegalStateException("XXXX Error during debug procedure -> no ChroPath available.");
+				String msg = "XXXX Error during debug procedure -> no ChroPath available.";
+				logger.error(msg);
+				throw new IllegalStateException(msg);
 			} finally {
 				if (tempChroPath != null) {
 					tempChroPath.toFile().deleteOnExit();
@@ -236,7 +240,8 @@ public final class WebDriverFactory implements it.vinmar.ResourceArbiter.Factory
 	 * This method creates a local FirefoxDriver instance
 	 *
 	 * @param headless
-	 * @return a FirefoxDriver instance
+	 *
+	 * @return {@code FirefoxDriver} instance
 	 */
 	private FirefoxDriver createLocalFirefoxDriver(final Boolean headless) {
 
@@ -251,9 +256,11 @@ public final class WebDriverFactory implements it.vinmar.ResourceArbiter.Factory
 	}
 
 	/**
+	 * Private method to generate ChromeOptions object.
 	 *
 	 * @param headless
-	 * @return
+	 *
+	 * @return {@code ChromeOptions} according current configuration
 	 */
 	private ChromeOptions createChromeOptions(final Boolean headless) {
 
@@ -275,8 +282,9 @@ public final class WebDriverFactory implements it.vinmar.ResourceArbiter.Factory
 				cops.addExtensions(tempChroPath.toFile());
 
 			} catch (final IOException e) {
-				logger.error("XXXX Error during debug procedure -> no ChroPath available.");
-				throw new IllegalStateException("XXXX Error during debug procedure -> no ChroPath available.");
+				String msg = "XXXX Error during debug procedure -> no ChroPath available.";
+				logger.error(msg);
+				throw new IllegalStateException(msg);
 			} finally {
 				if (tempChroPath != null) {
 					tempChroPath.toFile().deleteOnExit();
@@ -294,7 +302,7 @@ public final class WebDriverFactory implements it.vinmar.ResourceArbiter.Factory
 	 *
 	 * @param headless, true if headless
 	 *
-	 * @return
+	 * @return {@code ChromeDriver} instance
 	 */
 	private ChromeDriver createLocalChromeDriver(final Boolean headless) {
 

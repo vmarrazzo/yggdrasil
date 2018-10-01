@@ -1,0 +1,313 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<jmeterTestPlan version="1.2" properties="5.0" jmeter="5.0 r1840935">
+  <hashTree>
+    <TestPlan guiclass="TestPlanGui" testclass="TestPlan" testname="Test Plan" enabled="true">
+      <stringProp name="TestPlan.comments"></stringProp>
+      <boolProp name="TestPlan.functional_mode">false</boolProp>
+      <boolProp name="TestPlan.serialize_threadgroups">true</boolProp>
+      <elementProp name="TestPlan.user_defined_variables" elementType="Arguments" guiclass="ArgumentsPanel" testclass="Arguments" testname="User Defined Variables" enabled="true">
+        <collectionProp name="Arguments.arguments">
+          <elementProp name="setupDone" elementType="Argument">
+            <stringProp name="Argument.name">setupDone</stringProp>
+            <stringProp name="Argument.value">false</stringProp>
+            <stringProp name="Argument.metadata">=</stringProp>
+          </elementProp>
+          <elementProp name="stopDone" elementType="Argument">
+            <stringProp name="Argument.name">stopDone</stringProp>
+            <stringProp name="Argument.value">false</stringProp>
+            <stringProp name="Argument.metadata">=</stringProp>
+          </elementProp>
+          <elementProp name="nrThreads" elementType="Argument">
+            <stringProp name="Argument.name">nrThreads</stringProp>
+            <stringProp name="Argument.value">5</stringProp>
+            <stringProp name="Argument.metadata">=</stringProp>
+          </elementProp>
+          <elementProp name="browserType" elementType="Argument">
+            <stringProp name="Argument.name">browserType</stringProp>
+            <stringProp name="Argument.value">FIREFOX_HEADLESS</stringProp>
+            <stringProp name="Argument.metadata">=</stringProp>
+          </elementProp>
+          <elementProp name="grid" elementType="Argument">
+            <stringProp name="Argument.name">grid</stringProp>
+            <stringProp name="Argument.value">NONE</stringProp>
+            <stringProp name="Argument.metadata">=</stringProp>
+          </elementProp>
+          <elementProp name="proxy" elementType="Argument">
+            <stringProp name="Argument.name">proxy</stringProp>
+            <stringProp name="Argument.value"></stringProp>
+            <stringProp name="Argument.metadata">=</stringProp>
+          </elementProp>
+          <elementProp name="noProxyHosts" elementType="Argument">
+            <stringProp name="Argument.name">noProxyHosts</stringProp>
+            <stringProp name="Argument.value"></stringProp>
+            <stringProp name="Argument.metadata">=</stringProp>
+          </elementProp>
+          <elementProp name="testSuiteFile" elementType="Argument">
+            <stringProp name="Argument.name">testSuiteFile</stringProp>
+            <stringProp name="Argument.value">INSERT_HERE</stringProp>
+            <stringProp name="Argument.metadata">=</stringProp>
+          </elementProp>
+        </collectionProp>
+      </elementProp>
+      <stringProp name="TestPlan.user_define_classpath"></stringProp>
+    </TestPlan>
+    <hashTree>
+      <SetupThreadGroup guiclass="SetupThreadGroupGui" testclass="SetupThreadGroup" testname="setUp" enabled="true">
+        <stringProp name="ThreadGroup.on_sample_error">stoptestnow</stringProp>
+        <elementProp name="ThreadGroup.main_controller" elementType="LoopController" guiclass="LoopControlPanel" testclass="LoopController" testname="Loop Controller" enabled="true">
+          <boolProp name="LoopController.continue_forever">false</boolProp>
+          <stringProp name="LoopController.loops">1</stringProp>
+        </elementProp>
+        <stringProp name="ThreadGroup.num_threads">1</stringProp>
+        <stringProp name="ThreadGroup.ramp_time">1</stringProp>
+        <longProp name="ThreadGroup.start_time">1516290485000</longProp>
+        <longProp name="ThreadGroup.end_time">1516290485000</longProp>
+        <boolProp name="ThreadGroup.scheduler">false</boolProp>
+        <stringProp name="ThreadGroup.duration"></stringProp>
+        <stringProp name="ThreadGroup.delay"></stringProp>
+      </SetupThreadGroup>
+      <hashTree>
+        <IfController guiclass="IfControllerPanel" testclass="IfController" testname="If Controller" enabled="true">
+          <stringProp name="IfController.condition">${setupDone}==false</stringProp>
+          <boolProp name="IfController.evaluateAll">false</boolProp>
+        </IfController>
+        <hashTree>
+          <JSR223Sampler guiclass="TestBeanGUI" testclass="JSR223Sampler" testname="setUp WebDrivers Pool" enabled="true">
+            <stringProp name="scriptLanguage">groovy</stringProp>
+            <stringProp name="parameters"></stringProp>
+            <stringProp name="filename"></stringProp>
+            <stringProp name="cacheKey">true</stringProp>
+            <stringProp name="script">import it.vinmar.WebDriverFactory
+import it.vinmar.ResourceArbiter
+
+import java.util.Optional
+import java.util.stream.IntStream
+
+import org.openqa.selenium.WebDriver
+
+def browserType = vars.get(&quot;browserType&quot;)
+Optional&lt;String&gt; proxy = Optional.ofNullable(vars.get(&quot;proxy&quot;)?.isEmpty() ? null : vars.get(&quot;proxy&quot;))
+Optional&lt;String&gt; noProxy = Optional.ofNullable(vars.get(&quot;noProxyHosts&quot;)?.isEmpty() ? null : vars.get(&quot;noProxyHosts&quot;))
+Optional&lt;URL&gt; grid = Optional.empty()
+
+try {
+	URL url = new URL(vars.get(&quot;grid&quot;));
+	grid = Optional.ofNullable(url);
+} catch (MalformedURLException e) {
+	grid = Optional.empty();
+}
+
+def wdFactory = new WebDriverFactory( browserType, proxy, grid, noProxy)
+def nrThreads = vars.get(&quot;nrThreads&quot;) as Integer
+
+def pool = new ResourceArbiter&lt;WebDriver&gt;( wdFactory, nrThreads, 100)
+
+System.getProperties().put(&quot;WebDriversPool&quot;, pool)
+
+log.info(&quot;##### Created Selenium WebDriver Pool&quot;)
+
+// track that setup is completed correctly
+vars.put(&quot;setupDone&quot;, &quot;true&quot;)</stringProp>
+          </JSR223Sampler>
+          <hashTree/>
+        </hashTree>
+      </hashTree>
+      <PostThreadGroup guiclass="PostThreadGroupGui" testclass="PostThreadGroup" testname="tearDown" enabled="true">
+        <stringProp name="ThreadGroup.on_sample_error">stoptestnow</stringProp>
+        <elementProp name="ThreadGroup.main_controller" elementType="LoopController" guiclass="LoopControlPanel" testclass="LoopController" testname="Loop Controller" enabled="true">
+          <boolProp name="LoopController.continue_forever">false</boolProp>
+          <stringProp name="LoopController.loops">1</stringProp>
+        </elementProp>
+        <stringProp name="ThreadGroup.num_threads">1</stringProp>
+        <stringProp name="ThreadGroup.ramp_time">1</stringProp>
+        <longProp name="ThreadGroup.start_time">1516362937000</longProp>
+        <longProp name="ThreadGroup.end_time">1516362937000</longProp>
+        <boolProp name="ThreadGroup.scheduler">false</boolProp>
+        <stringProp name="ThreadGroup.duration"></stringProp>
+        <stringProp name="ThreadGroup.delay"></stringProp>
+      </PostThreadGroup>
+      <hashTree>
+        <IfController guiclass="IfControllerPanel" testclass="IfController" testname="If Controller" enabled="true">
+          <stringProp name="IfController.condition">${stopDone}==false</stringProp>
+          <boolProp name="IfController.evaluateAll">false</boolProp>
+        </IfController>
+        <hashTree>
+          <JSR223Sampler guiclass="TestBeanGUI" testclass="JSR223Sampler" testname="tearDown WebDriver Pools" enabled="true">
+            <stringProp name="scriptLanguage">groovy</stringProp>
+            <stringProp name="parameters"></stringProp>
+            <stringProp name="filename"></stringProp>
+            <stringProp name="cacheKey">true</stringProp>
+            <stringProp name="script">def wdPool = System.getProperties().get(&quot;WebDriversPool&quot;)
+
+def nrThreads = vars.get(&quot;nrThreads&quot;) as Integer
+
+def exit = false
+int count = 0
+
+(1..nrThreads).each{
+	log.info(&quot;#### TearDown instance nr. &quot; + it)
+	def d = wdPool.get()
+
+	if (d.isPresent()) {
+		def driver = d.get()
+		driver.quit()
+	}
+}
+
+// track that tear down is completed correctly
+vars.put(&quot;stopDone&quot;, &quot;true&quot;)</stringProp>
+          </JSR223Sampler>
+          <hashTree/>
+        </hashTree>
+      </hashTree>
+      <ThreadGroup guiclass="ThreadGroupGui" testclass="ThreadGroup" testname="Iterate" enabled="true">
+        <stringProp name="ThreadGroup.on_sample_error">continue</stringProp>
+        <elementProp name="ThreadGroup.main_controller" elementType="LoopController" guiclass="LoopControlPanel" testclass="LoopController" testname="Loop Controller" enabled="true">
+          <boolProp name="LoopController.continue_forever">false</boolProp>
+          <intProp name="LoopController.loops">-1</intProp>
+        </elementProp>
+        <stringProp name="ThreadGroup.num_threads">${nrThreads}</stringProp>
+        <stringProp name="ThreadGroup.ramp_time">1</stringProp>
+        <longProp name="ThreadGroup.start_time">1516294248000</longProp>
+        <longProp name="ThreadGroup.end_time">1516294248000</longProp>
+        <boolProp name="ThreadGroup.scheduler">false</boolProp>
+        <stringProp name="ThreadGroup.duration"></stringProp>
+        <stringProp name="ThreadGroup.delay"></stringProp>
+      </ThreadGroup>
+      <hashTree>
+        <CSVDataSet guiclass="TestBeanGUI" testclass="CSVDataSet" testname="Data Set" enabled="true">
+          <stringProp name="delimiter">\t</stringProp>
+          <stringProp name="fileEncoding">ISO-8859-15</stringProp>
+          <stringProp name="filename">${testSuiteFile}</stringProp>
+          <boolProp name="ignoreFirstLine">true</boolProp>
+          <boolProp name="quotedData">false</boolProp>
+          <boolProp name="recycle">false</boolProp>
+          <stringProp name="shareMode">shareMode.group</stringProp>
+          <boolProp name="stopThread">true</boolProp>
+          <stringProp name="variableNames">testId2,protocol2,host2,path2,xpath2</stringProp>
+        </CSVDataSet>
+        <hashTree/>
+        <JSR223Sampler guiclass="TestBeanGUI" testclass="JSR223Sampler" testname="Execute test" enabled="true">
+          <stringProp name="scriptLanguage">groovy</stringProp>
+          <stringProp name="parameters"></stringProp>
+          <stringProp name="filename"></stringProp>
+          <stringProp name="cacheKey">true</stringProp>
+          <stringProp name="script">import org.openqa.selenium.By
+
+def wdPool = System.getProperties().get(&quot;WebDriversPool&quot;)
+
+def testId = vars.get(&quot;testId2&quot;)
+def protocol = vars.get(&quot;protocol2&quot;)
+def host = vars.get(&quot;host2&quot;)
+def path = vars.get(&quot;path2&quot;)
+def xpath = vars.get(&quot;xpath2&quot;)
+
+// take an available WebDriver
+def extDriver = wdPool.get()
+
+// if an instance is returned
+if (extDriver.isPresent()) {
+
+    def driver = extDriver.get()
+
+    try {
+        def url = &quot;${protocol}://${host}${path}&quot;
+        
+        driver.get(url)
+        log.debug(&quot;Url to be verified -&gt; $url&quot;)
+
+	   def elements = driver.findElements(By.xpath(xpath))
+
+	   if (elements.size() &gt; 0)
+	   	log.info(&quot;${TestId} PASS&quot;)
+	   else
+	   	log.error(&quot;${TestId} FAIL&quot;)
+
+    } catch (Throwable t) {
+       log.error(&quot;XXXX Generic Error during $testId -&gt; ${t.getMessage()}&quot;)
+    } finally {
+        wdPool.free(driver)    
+    }
+}
+else {
+     log.error(&quot;XXXX Something wrong during $testId -&gt; No WebDriver instance!&quot;)
+}
+</stringProp>
+        </JSR223Sampler>
+        <hashTree/>
+      </hashTree>
+      <ResultCollector guiclass="ViewResultsFullVisualizer" testclass="ResultCollector" testname="View Results Tree" enabled="true">
+        <boolProp name="ResultCollector.error_logging">false</boolProp>
+        <objProp>
+          <name>saveConfig</name>
+          <value class="SampleSaveConfiguration">
+            <time>true</time>
+            <latency>true</latency>
+            <timestamp>true</timestamp>
+            <success>true</success>
+            <label>true</label>
+            <code>true</code>
+            <message>true</message>
+            <threadName>true</threadName>
+            <dataType>true</dataType>
+            <encoding>false</encoding>
+            <assertions>true</assertions>
+            <subresults>true</subresults>
+            <responseData>false</responseData>
+            <samplerData>false</samplerData>
+            <xml>false</xml>
+            <fieldNames>true</fieldNames>
+            <responseHeaders>false</responseHeaders>
+            <requestHeaders>false</requestHeaders>
+            <responseDataOnError>false</responseDataOnError>
+            <saveAssertionResultsFailureMessage>true</saveAssertionResultsFailureMessage>
+            <assertionsResultsToSave>0</assertionsResultsToSave>
+            <bytes>true</bytes>
+            <sentBytes>true</sentBytes>
+            <threadCounts>true</threadCounts>
+            <idleTime>true</idleTime>
+            <connectTime>true</connectTime>
+          </value>
+        </objProp>
+        <stringProp name="filename"></stringProp>
+      </ResultCollector>
+      <hashTree/>
+      <ResultCollector guiclass="StatVisualizer" testclass="ResultCollector" testname="Aggregate Report" enabled="true">
+        <boolProp name="ResultCollector.error_logging">false</boolProp>
+        <objProp>
+          <name>saveConfig</name>
+          <value class="SampleSaveConfiguration">
+            <time>true</time>
+            <latency>true</latency>
+            <timestamp>true</timestamp>
+            <success>true</success>
+            <label>true</label>
+            <code>true</code>
+            <message>true</message>
+            <threadName>true</threadName>
+            <dataType>true</dataType>
+            <encoding>false</encoding>
+            <assertions>true</assertions>
+            <subresults>true</subresults>
+            <responseData>false</responseData>
+            <samplerData>false</samplerData>
+            <xml>false</xml>
+            <fieldNames>true</fieldNames>
+            <responseHeaders>false</responseHeaders>
+            <requestHeaders>false</requestHeaders>
+            <responseDataOnError>false</responseDataOnError>
+            <saveAssertionResultsFailureMessage>true</saveAssertionResultsFailureMessage>
+            <assertionsResultsToSave>0</assertionsResultsToSave>
+            <bytes>true</bytes>
+            <sentBytes>true</sentBytes>
+            <threadCounts>true</threadCounts>
+            <idleTime>true</idleTime>
+            <connectTime>true</connectTime>
+          </value>
+        </objProp>
+        <stringProp name="filename"></stringProp>
+      </ResultCollector>
+      <hashTree/>
+    </hashTree>
+  </hashTree>
+</jmeterTestPlan>
