@@ -1,4 +1,4 @@
-package it.vinmar;
+package it.vinmar.factory;
 
 import java.util.Optional;
 import java.util.function.Consumer;
@@ -10,7 +10,7 @@ import org.openqa.selenium.chrome.ChromeDriver;
 import org.openqa.selenium.firefox.FirefoxDriver;
 import org.openqa.selenium.phantomjs.PhantomJSDriver;
 
-import it.vinmar.WebDriverFactory.WebDriverConf;
+import it.vinmar.factory.WebDriverConf;
 
 import static org.hamcrest.CoreMatchers.instanceOf;
 import static org.junit.Assert.assertThat;

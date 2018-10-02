@@ -1,8 +1,7 @@
-package it.vinmar;
+package it.vinmar.factory;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.net.MalformedURLException;
 import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -30,11 +29,15 @@ import org.slf4j.LoggerFactory;
 import io.github.bonigarcia.wdm.DriverManagerType;
 import io.github.bonigarcia.wdm.WebDriverManager;
 
+import it.vinmar.ResourceArbiter.Factory;
+import it.vinmar.factory.WebDriverConf.WebBrowser;
+
 /**
- * This is a factory object to create multiple WebDriver instance based on configuration.
- * It implementation is based on {@code Factory} interface.
+ * This is a factory object to create multiple WebDriver instance
+ * based on configuration.  * It implementation is based on
+ * {@code Factory} interface.
  */
-public final class WebDriverFactory implements it.vinmar.ResourceArbiter.Factory<WebDriver> {
+public final class WebDriverFactory implements Factory<WebDriver> {
 
 	/**
 	 * Logger
@@ -42,55 +45,9 @@ public final class WebDriverFactory implements it.vinmar.ResourceArbiter.Factory
 	private final Logger logger = LoggerFactory.getLogger("root");
 
 	/**
-	 * This {@code enum} defines supported browser type
-	 */
-	public enum WebBrowsers {
-		CHROME, CHROME_HEADLESS, FIREFOX, FIREFOX_HEADLESS, PHANTOMJS
-	}
-
-	/**
-	 * This object aggregates each configuration that can be passed to {@code WebDriverFactory}
-	 */
-	public static class WebDriverConf {
-		final WebBrowsers webBrowser;
-		final Optional<URL> grid;
-		final Optional<String> proxy;
-		final Optional<String> noProxy;
-
-		public WebDriverConf(final String webBrowserString, final String gridUrl, final String proxyString, final String noProxyString) {
-
-			webBrowser = WebBrowsers.valueOf(webBrowserString);
-
-			URL url = null;
-			try {
-				url = new URL(gridUrl);
-			} catch (final MalformedURLException e) {
-				url = null;
-			} finally {
-				grid = Optional.ofNullable(url);
-			}
-
-			proxy = Optional.ofNullable(proxyString);
-			noProxy = Optional.ofNullable(noProxyString);
-		}
-
-		public WebDriverConf(final String webBrowserString, final String gridUrl, final String proxyString) {
-			this(webBrowserString, gridUrl, proxyString, null);
-		}
-
-		public WebDriverConf(final String webBrowserString, final String gridUrl) {
-			this(webBrowserString, gridUrl, null, null);
-		}
-
-		public WebDriverConf(final String webBrowserString) {
-			this(webBrowserString, null, null, null);
-		}
-	}
-
-	/**
 	 * Factory creates new  {@code WebDriver} based on this enum
 	 */
-	private final WebBrowsers browserType;
+	private final WebBrowser browserType;
 
 	/**
 	 * {@code Optional} value of proxy in &lt;host&gt;:&lt;port&gt; format
@@ -142,7 +99,7 @@ public final class WebDriverFactory implements it.vinmar.ResourceArbiter.Factory
 		inGrid.ifPresent(urlgrid -> logger
 				.info(String.format("#### Using Selenium Grid -> %s", urlgrid.toString())));
 
-		browserType = WebBrowsers.valueOf(inBrowserType);
+		browserType = WebBrowser.valueOf(inBrowserType);
 		this.proxy = inProxy;
 		this.grid = inGrid;
 		this.noProxy = inNoProxy;
@@ -164,7 +121,10 @@ public final class WebDriverFactory implements it.vinmar.ResourceArbiter.Factory
 	 * @param conf is {@code WebDriverConf} object with necessary configuration
 	 */
 	public WebDriverFactory(final WebDriverConf conf) {
-		this(conf.webBrowser.toString(), conf.proxy, conf.grid, conf.noProxy);
+		this(conf.getWebBrowser().toString(),
+				conf.getProxy(),
+				conf.getGrid(),
+				conf.getNoProxy());
 	}
 
 	/**
@@ -173,7 +133,9 @@ public final class WebDriverFactory implements it.vinmar.ResourceArbiter.Factory
 	private Optional<Consumer<WebDriver>> setupAction = Optional.empty();
 
 	/**
-	 * This constructor accepts as input {@code WebDriverConf} object and {@code Consumer} of {@code WebDriver}. The last object is used as setup action when a new {@code WebDriver} is created.
+	 * This constructor accepts as input {@code WebDriverConf} object and
+	 * {@code Consumer} of {@code WebDriver}. The last object is used as
+	 * setup action when a new {@code WebDriver} is created.
 	 *
 	 * @param conf is WebDriverConf object
 	 * @param inSetupAction is setup action used after driver creation
@@ -196,10 +158,18 @@ public final class WebDriverFactory implements it.vinmar.ResourceArbiter.Factory
 		final FirefoxOptions fops = new FirefoxOptions();
 		fops.setHeadless(headless);
 
-		proxy.ifPresent(ok -> fops.setCapability(CapabilityType.PROXY, proxyObject));
+		proxy.ifPresent(
+				ok -> fops.setCapability(
+						CapabilityType.PROXY,
+						proxyObject)
+				);
 
-		System.setProperty(FirefoxDriver.SystemProperty.DRIVER_USE_MARIONETTE, "true");
-		System.setProperty(FirefoxDriver.SystemProperty.BROWSER_LOGFILE, "/dev/null");
+		System.setProperty(
+				FirefoxDriver.SystemProperty.DRIVER_USE_MARIONETTE,
+				"true");
+		System.setProperty(
+				FirefoxDriver.SystemProperty.BROWSER_LOGFILE,
+				"/dev/null");
 
 		final FirefoxProfile fp = new FirefoxProfile();
 		fp.setPreference("geo.prompt.testing", Boolean.TRUE);
@@ -229,7 +199,11 @@ public final class WebDriverFactory implements it.vinmar.ResourceArbiter.Factory
 			}
 		}
 
-		noProxy.ifPresent(noProxyString -> fp.setPreference("network.proxy.no_proxies_on", noProxyString));
+		noProxy.ifPresent(
+				noProxyString -> fp.setPreference(
+						"network.proxy.no_proxies_on",
+						noProxyString)
+				);
 
 		fops.setProfile(fp);
 
@@ -245,11 +219,14 @@ public final class WebDriverFactory implements it.vinmar.ResourceArbiter.Factory
 	 */
 	private FirefoxDriver createLocalFirefoxDriver(final Boolean headless) {
 
+		WebDriverManager wdm =
+				WebDriverManager.getInstance(DriverManagerType.FIREFOX);
+
 		// handle download manager behind proxy
 		if (proxy.isPresent()) {
-			WebDriverManager.getInstance(DriverManagerType.FIREFOX).proxy(proxy.get()).setup();
+			wdm.proxy(proxy.get()).setup();
 		} else {
-			WebDriverManager.getInstance(DriverManagerType.FIREFOX).setup();
+			wdm.setup();
 		}
 
 		return new FirefoxDriver(createFirefoxOptions(headless));
@@ -306,10 +283,13 @@ public final class WebDriverFactory implements it.vinmar.ResourceArbiter.Factory
 	 */
 	private ChromeDriver createLocalChromeDriver(final Boolean headless) {
 
+		WebDriverManager wdm =
+				WebDriverManager.getInstance(DriverManagerType.CHROME);
+
 		if (proxy.isPresent()) {
-			WebDriverManager.getInstance(DriverManagerType.CHROME).proxy(proxy.get()).setup();
+			wdm.proxy(proxy.get()).setup();
 		} else {
-			WebDriverManager.getInstance(DriverManagerType.CHROME).setup();
+			wdm.setup();
 		}
 
 		return new ChromeDriver(createChromeOptions(headless));
@@ -361,16 +341,23 @@ public final class WebDriverFactory implements it.vinmar.ResourceArbiter.Factory
 			final DesiredCapabilities caps = new DesiredCapabilities();
 			caps.setJavascriptEnabled(true);
 
+			WebDriverManager wdm = WebDriverManager
+					.getInstance(DriverManagerType.PHANTOMJS);
+
 			if (proxy.isPresent()) {
-				WebDriverManager.getInstance(DriverManagerType.PHANTOMJS).proxy(proxy.get()).setup();
+				wdm.proxy(proxy.get()).setup();
 
 				caps.setCapability(PhantomJSDriverService.PHANTOMJS_CLI_ARGS,
 						new String[] {
-								"--proxy=" + proxy.get(), "--web-security=false", "--ssl-protocol=any",
-								"--ignore-ssl-errors=true", "--webdriver-loglevel=INFO",
-								String.format("--webdriver-logfile=./phantomjsdriver_%03d.log", index) });
+								"--proxy=" + proxy.get(),
+								"--web-security=false",
+								"--ssl-protocol=any",
+								"--ignore-ssl-errors=true",
+								"--webdriver-loglevel=INFO",
+								String.format("--webdriver-logfile=./phantomjsdriver_%03d.log", index)
+								});
 			} else {
-				WebDriverManager.getInstance(DriverManagerType.PHANTOMJS).setup();
+				wdm.setup();
 			}
 			resp = new PhantomJSDriver(caps);
 			break;

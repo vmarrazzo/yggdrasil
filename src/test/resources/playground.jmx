@@ -77,7 +77,7 @@
             <stringProp name="parameters"></stringProp>
             <stringProp name="filename"></stringProp>
             <stringProp name="cacheKey">true</stringProp>
-            <stringProp name="script">import it.vinmar.WebDriverFactory
+            <stringProp name="script">import it.vinmar.factory.WebDriverFactory
 import it.vinmar.ResourceArbiter
 
 import java.util.Optional

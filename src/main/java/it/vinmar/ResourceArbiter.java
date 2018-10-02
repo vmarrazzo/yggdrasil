@@ -151,8 +151,8 @@ public final class ResourceArbiter<T> {
 				if (usageCounter != null) { // extended
 					final Integer currCounter = usageCounter.get(item) - 1;
 
-					if (currCounter == 0) {
-						disposeItem = Optional.of(item); // leave item in FALSE state
+					if (currCounter == 0) { // leave item in FALSE state
+						disposeItem = Optional.of(item);
 					} else { // make item available
 						resources.put(item, Boolean.TRUE);
 						usageCounter.put(item, currCounter);
