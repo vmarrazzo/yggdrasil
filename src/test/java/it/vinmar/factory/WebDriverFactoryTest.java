@@ -3,7 +3,6 @@ package it.vinmar.factory;
 import java.util.Optional;
 import java.util.function.Consumer;
 
-import org.junit.Test;
 import org.openqa.selenium.Point;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.chrome.ChromeDriver;
@@ -12,12 +11,15 @@ import org.openqa.selenium.phantomjs.PhantomJSDriver;
 
 import it.vinmar.factory.WebDriverConf;
 
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.Tag;
 import static org.hamcrest.CoreMatchers.instanceOf;
-import static org.junit.Assert.assertThat;
+import static org.hamcrest.MatcherAssert.assertThat;
 
 public class WebDriverFactoryTest {
 
 	@Test
+	@Tag("phantomjs")
 	public void testCreationViaParameters() {
 		
 		WebDriverFactory underTest = new WebDriverFactory("PHANTOMJS", Optional.empty(), Optional.empty(), Optional.empty());
@@ -30,6 +32,7 @@ public class WebDriverFactoryTest {
 	}
 	
 	@Test
+	@Tag("firefox")
 	public void testCreationViaConfigurator() {
 
 		WebDriverConf conf = new WebDriverConf("FIREFOX_HEADLESS");
@@ -44,6 +47,7 @@ public class WebDriverFactoryTest {
 	}
 	
 	@Test
+	@Tag("firefox")
 	public void testFirefoxHeadlessWithCompleteProxy() {
 
 		// used proxynova for unit test can fail!
@@ -59,6 +63,7 @@ public class WebDriverFactoryTest {
 	}	
 	
 	@Test
+	@Tag("chrome")
 	public void testCreationWithSetupAction() {
 			
 			WebDriverConf conf = new WebDriverConf("CHROME_HEADLESS");
@@ -82,6 +87,7 @@ public class WebDriverFactoryTest {
 	}
 	
 	@Test
+	@Tag("firefox")
 	public void testCreateFirefoxWithDebug() {
 
 		System.setProperty("factory.debug", "true");
@@ -100,6 +106,7 @@ public class WebDriverFactoryTest {
 	}
 	
 	@Test
+	@Tag("chrome")
 	public void testCreateChromeWithDebug() {
 
 		System.setProperty("factory.debug", "true");

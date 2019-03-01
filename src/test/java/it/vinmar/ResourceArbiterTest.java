@@ -8,8 +8,8 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.stream.IntStream;
 
-import org.junit.Assert;
-import org.junit.Test;
+import static org.junit.jupiter.api.Assertions.*;
+import org.junit.jupiter.api.Test;
 
 import it.vinmar.ResourceArbiter.Factory;
 
@@ -46,7 +46,7 @@ public class ResourceArbiterTest {
 					switch (step.getKey()) {
 					case TAKE:
 						Optional<Integer> ii = underTest.reserve();
-						ii.ifPresent(item -> Assert.assertEquals(step.getValue(), item));
+						ii.ifPresent(item -> assertEquals(step.getValue(), item));
 						break;
 
 					case FREE:
@@ -57,7 +57,7 @@ public class ResourceArbiterTest {
 		
 		args.forEach(index -> underTest.reserve());
 		
-		Assert.assertEquals(Optional.empty(), underTest.reserve());
+		assertEquals(Optional.empty(), underTest.reserve());
 	}
 	
 	@Test
@@ -105,7 +105,7 @@ public class ResourceArbiterTest {
 					switch (step.getKey()) {
 					case TAKE:
 						Optional<Integer> ii = underTest.reserve();
-						ii.ifPresent(item -> Assert.assertEquals(step.getValue(), item));
+						ii.ifPresent(item -> assertEquals(step.getValue(), item));
 						break;
 
 					case FREE:
@@ -116,7 +116,7 @@ public class ResourceArbiterTest {
 		
 		IntStream.rangeClosed(1, nrElement).forEach(index -> underTest.reserve());
 		
-		Assert.assertEquals(Optional.empty(), underTest.reserve());
+		assertEquals(Optional.empty(), underTest.reserve());
 	}
 	
 	@Test
@@ -159,14 +159,14 @@ public class ResourceArbiterTest {
 				new SimpleEntry<>(Action.TAKE, 4),
 				new SimpleEntry<>(Action.TAKE, 3));
 		
-		Assert.assertFalse(trackClosing.entrySet().stream().allMatch(entry -> entry.getValue()));
+		assertFalse(trackClosing.entrySet().stream().allMatch(entry -> entry.getValue()));
 		
 		pattern.forEach(
 				step -> {
 					switch (step.getKey()) {
 					case TAKE:
 						Optional<Integer> ii = underTest.reserve();
-						ii.ifPresent(item -> Assert.assertEquals(step.getValue(), item));
+						ii.ifPresent(item -> assertEquals(step.getValue(), item));
 						break;
 
 					case FREE:
@@ -175,6 +175,6 @@ public class ResourceArbiterTest {
 					}
 				});
 
-		Assert.assertTrue(trackClosing.entrySet().stream().allMatch(entry -> entry.getValue()));
+		assertTrue(trackClosing.entrySet().stream().allMatch(entry -> entry.getValue()));
 	}
 }
